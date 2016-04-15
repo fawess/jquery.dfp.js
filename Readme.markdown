@@ -1,364 +1,13020 @@
-jQuery DFP - A jQuery implementation for Google DFP
-======================================================
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
 
-[![Build Status](https://travis-ci.org/coop182/jquery.dfp.js.png?branch=master)](https://travis-ci.org/coop182/jquery.dfp.js)
 
-This script is a drop in solution for getting Double Click for Publishers (DFP) by Google working on your page. By including this script on your page and then initialising it in the ways described below you should find it very easy to get DFP working.
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
 
-Do not include any of the generated DFP script tags from the DFP admin on your page, this script replaces them.
 
-This script also works with [Zepto.js](http://zeptojs.com/)
 
-Demo / Ad unit tester
----------------------
 
-You can use [this page](http://coop182.github.io/jquery.dfp.js/dfptests/test.html?google_console=1&networkID=15572793&adunitID=Leader&dimensions=728x90) to test your DFP ads using the jquery.dfp.js script. There is some debug code included to help debug the ad delivery.
+# 1. Project Overview
+***
 
-You can also use the [Google Console](https://support.google.com/dfp_sb/answer/181070?hl=en-GB) to debug your ad units. This is done by by adding a "google_console=1" or "google_debug=1" to the url, and toggling the console by pressing CTRL + F10. Subsequent pagerequests will not require the parameters, and the console can be toggled. Adding the querystring "googfc" to an url, will also load the console, but also show it, without having to press CTRL + F10.
 
-Setup
------
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
 
-You can add ad units to your page in any location that you would like to display an ad.
 
-By default this script will look for ad units with a class of `adunit` but you can of course use jQuery selectors as well.
+Document Revision History
+=========================
 
-The minimum information required for an ad unit to function is having the ad unit specified. To do this you can use the id parameter of the element, for example:
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
 
-```html
-<div class="adunit" id="Ad_unit_id"></div>
-```
 
-In the example above the ID of the div element will be used to look up a corresponding ad unit in DFP and the dimensions of the adunit will be set to the same dimensions of the div which could be defined in your CSS.
 
-You can optionally specify the adunit name and dimensions in the following way:
 
-```html
-<div class="adunit" data-adunit="Ad_unit_id" data-dimensions="393x176"></div>
-```
 
-This method can be useful for including multiple copies of an ad unit with the same name which when part of a DFP placement will then pull in as many different creatives as possible.
 
-You can also specify multiple dimensions sets:
+# 2. Document Overview
+***
 
-```html
-<div class="adunit" data-adunit="Ad_unit_id" data-dimensions="393x176,450x500"></div>
-```
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
 
-Also you can optionally specify custom targeting on a per ad unit basis in the following way:
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
 
-```html
-<div class="adunit" data-adunit="Ad_unit_id" data-dimensions="393x176" data-targeting='{"city_id":"1"}'></div>
-```
 
-Also you can optionally specify custom exclusion category on a per ad unit basis in the following way:
+The outline of this document is the following:
 
-```html
-<div class="adunit" data-adunit="Ad_unit_id" data-dimensions="393x176" data-exclusions="firstcategory,secondcategory"></div>
-```
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
 
-To create an out of page ad unit set the data-outofpage property on the ad unit. Dimensions are not required for out of page ad units.
 
-```html
-<div class="adunit" data-adunit="Ad_unit_id" data-outofpage="true"></div>
-```
+# 3. digitalData data layer object
+***
 
-In order to identify an ad unit on the page that is a video companion ad, set the data-companion attribute on that unit.
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
 
-```html
-<div class="adunit" data-adunit="Ad_unit_id" data-dimensions="393x176" data-companion="true"></div>
-```
+- `page`
 
-Usage
------
-
-Calling the script:
-
-```html
-<html>
-<head>
-    <title>DFP TEST</title>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
-    <script src="jquery.dfp.min.js"></script>
-</head>
-<body>
-
-    <div class="adunit" id="Middle_Feature" data-dimensions="393x176" data-targeting='{"city_id":"1"}'></div>
-
-    <script>
-
-        $.dfp({
-            dfpID: 'xxxxxxxxx'
-        });
-
-    </script>
-
-</body>
-</html>
-```
-
-Using a bootstrap file (take a look at [example-bootstrap.js](https://github.com/coop182/jquery.dfp.js/blob/master/example-bootstrap.js)):
-
-```html
-<html>
-<head>
-    <title>DFP TEST</title>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
-    <script src="example-bootstrap.js"></script>
-</head>
-<body>
-
-    <div class="adunit" id="Middle_Feature" data-dimensions="393x176" data-targeting='{"city_id":"1"}'></div>
-
-</body>
-</html>
-```
-
-You can init the script in the following ways:
-
-```javascript
-$.dfp('xxxxxxxxx');
-```
-```javascript
-$.dfp({
-    dfpID:'xxxxxxxxx'
-});
-```
-```javascript
-$('selector').dfp({
-    dfpID:'xxxxxxxxx'
-});
-```
-```javascript
-$('selector').dfp({
-    dfpID:'xxxxxxxxx',
-    setCategoryExclusion: 'firstcategory, secondcategory'
-});
-```
-```javascript
-$('selector').dfp({
-    dfpID:'xxxxxxxxx',
-    setLocation: { latitude: 34, longitude: -45.12, precision: 1000 }
-});
-```
-
-```javascript
-$('selector').dfp({
-    dfpID:'xxxxxxxxx',
-    sizeMapping: {
-        'my-default': [
-        	{browser: [1024, 768], ad_sizes: [980, 185]},
-	        {browser: [ 980, 600], ad_sizes: [[728, 90], [640, 480]]},
-	        {browser: [   0,   0], ad_sizes: [88, 31]}
-        ],
-    }
-});
-```
-
-Available Options
------------------
-
-<table>
-    <tr>
-        <th>Option</th>
-        <th>Description</th>
-    </tr>
-    <tr>
-        <td>dfpID</td>
-        <td>This string is your unique DFP account ID.</td>
-    </tr>
-    <tr>
-        <td>setTargeting</td>
-        <td>This object is where you set custom targeting key value pairs. Also see the Default Targeting options that are set further down the page.</td>
-    </tr>
-    <tr>
-        <td>url</td>
-        <td>This string is the url used by the URL Targeting feature. The default value of this option is the value found by calling window.location.</td>
-    </tr>
-    <tr>
-        <td>setUrlTargeting</td>
-        <td>This boolean specifies whether the targeting should include information found in the url of the current page. The default value of this option is true.</td>
-    </tr>
-    <tr>
-        <td>setCategoryExclusion</td>
-        <td>This comma separated list sets category exclusions globally (page level).</td>
-    </tr>
-    <tr>
-        <td>setLocation</td>
-        <td>This object sets geolocalization. String values are not valid. </td>
-    </tr>
-
-    <tr>
-        <td>enableSingleRequest</td>
-        <td>This boolean sets whether the page ads are fetched with a single request or not, you will need to set this to false it you want to call $.dfp() more than once, typically you would do this if you are loading ad units into the page after the initial load.</td>
-    </tr>
-    <tr>
-        <td>collapseEmptyDivs</td>
-        <td>This can be set to true, false or 'original'. If its set to true the divs will be set to display:none if no line item is found. False means that the ad unit div will stay visible no matter what. Setting this to 'original' (the default option) means that the ad unit div will be hidden if no line items are found UNLESS there is some existing content inside the ad unit div tags. This allows you to have fall back content in the ad unit in the event that no ads are found.</td>
-    </tr>
-    <tr>
-        <td>refreshExisting</td>
-        <td>This boolean controls what happens when dfp is called multiple times on ad units. By default it is set to true which means that if an already initialised ad is initialised again it will instead be refreshed.</td>
-    </tr>
-    <tr>
-        <td>sizeMapping</td>
-        <td>Defines named size maps that can be used with in combination with the data-size-mapping attribute to enable responsive ad sizing (https://support.google.com/dfp_premium/answer/3423562?hl=en).</td>
-    </tr>
-    <tr>
-        <td>companionAds</td>
-        <td>If adding companion ads to accompany videos using the IMA SDK to serve video ads, then pass this parameter as true to identify the units being used for that purpose. (https://support.google.com/dfp_premium/answer/1191131)</td>
-    </tr>
-    <tr>
-        <td>disableInitialLoad</td>
-        <td>This allows for serving companion ad units when the video on the page auto plays.  You'll need to include this setting with companionAds as true to avoid possible double impressions. (https://support.google.com/dfp_premium/answer/1191131)</td>
-    </tr>
-    <tr>
-        <td>setCentering</td>
-        <td>Enables/disables centering of ads.</td>
-    </tr>
-    <tr>
-        <td>afterEachAdLoaded</td>
-        <td>This is a call back function, see below for more information.</td>
-    </tr>
-    <tr>
-        <td>afterAllAdsLoaded</td>
-        <td>This is a call back function, see below for more information.</td>
-    </tr>
-    <tr>
-        <td>beforeEachAdLoaded</td>
-        <td>This is a call back function, see below for more information.</td>
-    </tr>
-</table>
-
-Callbacks
----------
-
-This script provides two callbacks which you can use to make working with DFP a little easier.
-
-<table>
-    <tr>
-        <th>Callback</th>
-        <th>Parameters</th>
-        <th>Description</th>
-    </tr>
-    <tr>
-        <td>afterEachAdLoaded(adUnit)</td>
-        <td>
-            <ul>
-                <li>adUnit - jQuery Object - the jQuery object</li>
-            </ul>
-        </td>
-        <td>This is called after each ad unit has finished rendering.</td>
-    </tr>
-    <tr>
-        <td>afterAllAdsLoaded(adUnits)</td>
-        <td>
-            <ul>
-                <li>adUnits - jQuery Object - the jQuery object containing all selected ad units</li>
-            </ul>
-        </td>
-        <td>This is called after all ad units have finished rendering.</td>
-    </tr>
-    <tr>
-        <td>alterAdUnitName(adUnitName, adUnit)</td>
-        <td>
-            <ul>
-                <li>adUnitName - String - the default ad unit name</li>
-                <li>adUnit - jQuery Object - the jQuery object</li>
-            </ul>
-        </td>
-        <td>Return the modified or overrided ad unit name.  This function is called once per ad unit.</td>
-    </tr>
-    <tr>
-        <td>beforeEachAdLoaded(adUnit)</td>
-        <td>
-            <ul>
-                <li>adUnit - jQuery Object - the jQuery object</li>
-            </ul>
-        </td>
-        <td>This is called before each ad unit has started rendering.</td>
-    </tr>
-    <tr>
-        <td>afterAdBlocked(adUnit)</td>
-        <td>
-            <ul>
-                <li>adUnit - jQuery Object - the jQuery object</li>
-            </ul>
-        </td>
-        <td>This is called after each AdUnit has been blocked.</td>
-    </tr>   
-</table>
-
-Please see the [example-bootstrap.js](https://github.com/coop182/jquery.dfp.js/blob/master/example-bootstrap.js) file for an example of how to use these.
-
-Default URL Targeting
----------------------
-
-The following targeting options are built into this script and should be setup in your DFP account ([within Inventory/Custom Targeting](https://support.google.com/dfp_sb/bin/answer.py?hl=en&answer=2983838)) to make full use of them. These targeting-parameters can be turned on/off with the setUrlTargeting option.
-
-**Beware: The Targeting string has a 40 character limit!**
-
-<table>
-    <tr>
-        <th>Key</th>
-        <th>Description</th>
-    </tr>
-    <tr>
-        <td>UrlHost</td>
-        <td>This allows you to target different host names, for example you could test your ads on your staging environment before pushing them live by specifying a host of staging.yourdomain.com within DFP, this script will take care of the rest.</td>
-    </tr>
-    <tr>
-        <td>UrlPath</td>
-        <td>This allows you to target the path of the users browser, for example if you set UrlPath to '/page1' on the targeting options of the DFP line item it would match http://www.yourdomain.com/page1 only and not http://www.yourdomain.com/page1/segment2.</td>
-    </tr>
-    <tr>
-        <td>UrlQuery</td>
-        <td>This allows you to target the query parameters of a page. For example if the URL was http://www.yourdomain.com/page1?param1=value1 you could target it with a DFP ad by specifying a UrlQuery targeting string of param1:value1</td>
-    </tr>
-</table>
-
-DFP now supports both a "begins with" and a "contains" operator when specifying the custom criteria value. Furthermore the value when using free-form-key-value custom criterias, is no longer subject to a 40 character limit. Read more about custom criteria in the [DFP help](https://support.google.com/dfp_premium/answer/188092).
-
-![URL Targeting](img/url-targetting.png)
-
-**IMPORTANT: Regarding user-identifiable information in url targeting**
-
-If your url contains user-identifiable information you have to anonymize the url when using URL targeting.
-
-From the [DFP docs](https://support.google.com/dfp_premium/answer/177383):
-
-> You may not pass any user-identifiable data (including names, addresses, or user IDs) in the targeting. Please mask this information using the encoding of your choice, and ensure your ad trafficker knows how to decode the values when setting up a line item.
-
-From the [DFP Terms & Conditions](http://www.google.dk/doubleclick/publishers/small-business/terms.html):
-
-> **2.3 Prohibited Actions.** You will not, and will not allow any third party to: ... (h) utilize any feature or functionality of the Program, or include anything in Program Data or Program Ads, that could be so utilized, to personally identify and/or personally track individual end users or any other persons
-
-Ignoring this rule can result in Google shutting down your network!
-
-You can anonymize the url by providing an anonymized version in the 'url' option. This example shows how to replace email occurances in the url with an empty string:
-
-```javascript
-$('selector').dfp({
-  dfpID: 'xxxxxxxxx',
-  url: window.location.toString().replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b/gi, '')
-});
-```
-
-Contributing
-------------
-
-Any and all contributions will be greatly appreciated.
-
-If you wish to you can use [Grunt](http://gruntjs.com/) to enable a smooth contributing and build process.
-
-Install Node.js by running `sudo apt-get install nodejs`
-
-Install Grunt using: `npm install -g grunt-cli`
-
-Once installed run `npm install` from inside the cloned repo directory.
-
-You should now be able to make your changes to `jquery.dfp.js` and once you are finished simply run `grunt` if there are no errors then you can commit your changes and make a pull request and your feature/bug fix will be merged as soon as possible.
-
-Please feel free to write tests which will test your new code, [Travis CI](https://travis-ci.org/) is used to test the code automatically once a pull request is generated.
-
-Thanks a lot to these [contributors](https://github.com/coop182/jquery.dfp.js/graphs/contributors).
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)
+![](http://www.adviso.ca/wp-content/themes/adviso/images/structure/logo.png)
+
+
+# SYSTEM INTEGRATION SPECIFICATIONS FOR AIR CANADA: MANAGE FLIGHT BOOKING PROCESS
+
+
+
+
+# 1. Project Overview
+***
+
+
+The goal of this project is to update the analytics implementation on Air Canada's digital assets. The current document provides a complete overview of the tagging requirements for provide a complete overview of all tagging requirements for Air CanadaÃ¢â‚¬â„¢s Manage Booking Flow.
+
+
+Document Revision History
+=========================
+
+Revision Number | Date| Revision Description | Author
+------------ | ------------- | ------------ | ---------
+0.1 |12/06/2014 | Initial Draft Version for Review | Alexandre Cayla, Digito
+0.2 | 15/10/2014 | Updated Draft to include page code (new website)| Alexandre Cayla, Digito
+0.3 |29/10/2014 |Updated Draft with DigitalData Implementation Instruction for All pages, Home Page, Flight Booking | Ai Thanh Ho, Adviso
+0.4|13/11/2014| Updated Draft with DigitalData Implementation for Manage My Booking |Ai Thanh Ho, Adviso
+0.5 | 20/11/2014| Integration with Bitbucket |Ai Thanh Ho, Adviso
+0.6 | 31/03/2015| SIS First draft |Ai Thanh Ho, Adviso
+0.7 | 24/04/2015| Refactoring digitalData  |Ai Thanh Ho, Adviso
+1.0 | 05/05/2015| SIS final |Ai Thanh Ho, Adviso
+2.0 | 26/06/2015| SIS for new mockup (May)|Ai Thanh Ho, Adviso
+2.1 | 24/07/2015| SIS for new mockup (June) |Ai Thanh Ho, Adviso
+2.2 | 09/09/2015| Minor clarifications added to tagging instructions | Alexandre Cayla, Adviso
+
+
+
+
+
+
+# 2. Document Overview
+***
+
+To ensure that all tags have access to the same data and can be managed easily and properly, Adobe Tag Manager will be used in conjunction to a dataLayer (digitalData). All user interactions with the website will be divided into use case. Each use case contains information about:
+
+- Short explanation of what is being tracked
+- Implementation Instructions with key elements of the digitalData datalayer
+- Sample code
+- Validation instructions
+
+
+The outline of this document is the following:
+
+- [1. Project Overview](#1-project-overview)
+- [2. Document Overview](#2-document-overview)
+- [3. digitalData data layer object](#3-digitaldata-data-layer-object)
+- [4. General validation instructions](#4-general-validation-instructions)
+- [5. Integration instructions](#5-integration-instructions)
+    - [5.1 General instructions](#51-general-instructions)
+    - [5.2 Campaign tagging](#52-campaign-tagging)
+        - [1 Internal promotion](#1-internal-promotion)
+        - [2 Internal offers](#2-internal-offers)
+    - [5.3 Manage My Booking process](#53-manage-my-booking-process)
+        - [Diagram](#diagram)
+        - [Process details](#process-details)
+        - [1 View Manage My Bookings - Booking List](#1-view-manage-my-bookings---booking-list)
+        - [2 View Manage My Bookings - Booking Details](#2-view-manage-my-bookings---booking-details)
+        - [3 View Manage My Bookings - Change trip page](#3-view-manage-my-bookings---change-trip-page)
+        - [4a View Manage My Bookings - Change flights](#4a-view-manage-my-bookings---change-flights)
+        - [4b View Manage My Bookings - Add flights](#4b-view-manage-my-bookings---add-flights)
+        - [5 View Flight Search Results page](#5-view-flight-search-results-page)
+            - [5.1 View a flight](#51-view-a-flight)
+            - [5.2 Select flight](#52-select-flight)
+        - [6 View Flight Upgrade page](#6-view-flight-upgrade-page)
+            - [6.1 Change flight](#61-change-flight)
+            - [6.2 Select a flight upgrade](#62-select-a-flight-upgrade)
+            - [6.3 Reselect a flight upgrade](#63-reselect-a-flight-upgrade)
+        - [7 Share itinerary page](#7-share-itinerary-page)
+            - [7.1 Send Email Itinerary](#71-send-email-itinerary)
+        - [8 View Select Travel option page](#8-view-select-travel-option-page)
+            - [8.1 View an ancillary](#81-view-an-ancillary)
+            - [8.2 Select ancillary](#82-select-ancillary)
+            - [8.3 Remove ancillary](#83-remove-ancillary)
+        - [9 View Passengers page](#9-view-passengers-page)
+        - [10 View Seat Selection page](#10-view-seat-selection-page)
+        - [11 View seat map page](#11-view-seat-map-page)
+            - [11.1 View Seat](#111-view-seat)
+            - [11.2 Select Seat](#112-select-seat)
+            - [11.3 Reselect Seat](#113-reselect-seat)
+        - [12 View Payment page](#12-view-payment-page)
+            - [12.1 View insurance](#121-view-insurance)
+            - [12.2 Select insurance](#122-select-insurance)
+            - [12.3 Reselect insurance](#123-reselect-insurance)
+        - [13 View Authentication page](#13-view-authentication-page)
+        - [14 View Confirmation page](#14-view-confirmation-page)
+        - [15 View Manage My Bookings - Cancellation page](#15-view-manage-my-bookings---cancellation-page)
+    - [5.4 Other use cases](OtherUseCases.md)
+        - [View error pages](OtherUseCases.md#view-error-pages)
+        - [Form errors](OtherUseCases.md#form-errors)
+        - [All other pages](OtherUseCases.md#all-other-pages)
+- [Appendices](#appendices)
+    - [digitalData data layer object](#digitaldata-data-layer-object)
+    - [Troubleshooting](#troubleshooting)
+        - [Common errors](#common-errors)
+        
+
+
+# 3. digitalData data layer object
+***
+
+The dataLayers primary goal is to expose relevant data elements (such as the name of a page, it's section, the total of a transaction, etc.) to the tag management system. The data elements are organised in different JavaScript objects that contain all related data elements. For example:
+
+- `page`
+
+- `users`
+
+- `events`
+
+- `cart`
+
+- `products`
+
+- `transactions`
+
+
+Collectively, these objects constitute the `digitalData` object. The contents of these objects is either set in the page code or updated using the `digitalData.events.push` method.
+
+For more information on how to track event or to extend digitalData, see Appendix 1.
+
+
+# 4. General validation instructions
+***
+
+In order to validate that the code has been integrated correctly, follow these steps:
+
+1) Open the console of the web browser by pressing F12 (for Internet Explorer) or Control-Shift-J for Chrome
+
+![Validation Console](http://aiscreenshot.s3.amazonaws.com/Validation_Console.png)
+
+2) Refresh the page or follow the use case (for example: click on a button/ component) to trigger
+the event
+
+3) Type `digitalData` and press enter.
+
+For common errors and how to fix them, please refer to Appendix 2.
+
+
+
+# 5. Integration instructions
+***
+
+***
+
+## 5.1 General instructions
+
+[See more details here](GeneralInstructions.md)
+
+## 5.2 Campaign tagging
+
+[See more details here](CampaignTagging.md)
+
+
+## 5.3 Manage My Booking process
+
+[See more details here](ManageBookingProcess.md)
+
+
+
+## 5.4 Other use cases
+
+[See more details here](OtherUseCases.md)
+
+
+# Appendices
+
+## digitalData data layer object
+
+For more information, visit our Bitbucket repository at [https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary](https://bitbucket.org/adviso/customer-air-canada-digital-data-layer-dictionary)
+
+## Troubleshooting
+
+### Common errors
+
+1) Syntax Error
+-	If the console shows some error warnings such as ``Uncaught Syntax Error: Unexpected
+identifier``, go to the javascript code to fix the syntax.
+
+![Syntax Error](http://aiscreenshot.s3.amazonaws.com/Validation_SyntaxError.png)
+
+-	If there is no error, continue to step 3.
+
+2) _satellite is not defined
+
+- Type: ``_satellite`` in the console
+
+- If the console displays ``ReferenceError: _satellite is not defined``, check if this code snippet is correctly included in the ``<head>`` section.
+
+````html
+<script src="//assets.adobedtm.com/a0e4257e187c718dbef1dd231d87385336b39a7a/satelliteLib-9ccb4de22acfc5080eefa87b51427f642289f701.js">
+</script>
+````
+
+4) digitalData is not defined
+
+- Type: ``console.log(digitalData)`` in the console
+
+- If the console displays ``ReferenceError: digitalData is not defined``, check if this code snippet is included in the ``<head>``
+
+````html
+<script type="text/javascript">
+   var digitalData=window.digitalData||{};
+   digitalData.events=window.digitalData.events||[];
+</script>
+````
+
+![digitalData Not Defined](http://aiscreenshot.s3.amazonaws.com/Validation_NotDefined.png)
+
+5) For all the use cases check if all necessary data are correctly populated
+
+![digitalData](http://aiscreenshot.s3.amazonaws.com/Validation_DigitalData.png)

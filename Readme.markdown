@@ -319,7 +319,7 @@ The following targeting options are built into this script and should be setup i
 
 DFP now supports both a "begins with" and a "contains" operator when specifying the custom criteria value. Furthermore the value when using free-form-key-value custom criterias, is no longer subject to a 40 character limit. Read more about custom criteria in the [DFP help](https://support.google.com/dfp_premium/answer/188092).
 
-![URL Targeting](master/img/url-targetting.png)
+![URL Targeting](img/url-targetting.png)
 
 **IMPORTANT: Regarding user-identifiable information in url targeting**
 
